@@ -3,6 +3,7 @@ const Post = require("../models/Post");
 const Admin = require("../models/Admin");
 const verifyToken = require("./verifyToken");
 var jwt = require("jsonwebtoken");
+const verifyAdmin = require("./verifyAdmin");
 
 const router = express.Router();
 
@@ -66,7 +67,7 @@ router.post("/", verifyToken, async (req, res) => {
 });
 
 // Delete post - if logged in
-router.delete("/:postId", verifyToken, async (req, res) => {
+router.delete("/:postId", verifyToken, verifyAdmin, async (req, res) => {
   try {
     const removedPost = await Post.remove({ _id: req.params.postId });
     res.json(removedPost);
@@ -137,17 +138,22 @@ router.post("/:postId/comments", async (req, res) => {
 });
 
 // Delete comment on post - if logged in
-router.delete("/:postId/comments/:commentId", verifyToken, async (req, res) => {
-  try {
-    const post = await Post.findById(req.params.postId);
-    post.comments.id(req.params.commentId).remove();
+router.delete(
+  "/:postId/comments/:commentId",
+  verifyToken,
+  verifyAdmin,
+  async (req, res) => {
+    try {
+      const post = await Post.findById(req.params.postId);
+      post.comments.id(req.params.commentId).remove();
 
-    const savedPost = await post.save();
-    res.json(savedPost);
-  } catch (err) {
-    res.json({ message: err });
+      const savedPost = await post.save();
+      res.json(savedPost);
+    } catch (err) {
+      res.json({ message: err });
+    }
   }
-});
+);
 
 // Update comment post - if logged in
 router.patch("/:postId/comments/:commentId", verifyToken, async (req, res) => {

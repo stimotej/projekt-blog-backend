@@ -8,9 +8,10 @@ const {
   updateAdminValidation,
 } = require("../validation");
 const verifyToken = require("./verifyToken");
+const verifyAdmin = require("./verifyAdmin");
 
 // Get list of admins - if logged in
-router.get("/", verifyToken, async (req, res) => {
+router.get("/", verifyToken, verifyAdmin, async (req, res) => {
   try {
     const admins = await Admin.find();
     res.json(admins);
@@ -20,7 +21,7 @@ router.get("/", verifyToken, async (req, res) => {
 });
 
 // Get single admin by id - if logged in
-router.get("/:adminId", verifyToken, async (req, res) => {
+router.get("/:adminId", verifyToken, verifyAdmin, async (req, res) => {
   try {
     const admin = await Admin.findById(req.params.adminId);
     res.json(admin);
@@ -30,7 +31,7 @@ router.get("/:adminId", verifyToken, async (req, res) => {
 });
 
 // REGISTER NEW ADMIN USER - if logged in
-router.post("/register", verifyToken, async (req, res) => {
+router.post("/register", verifyToken, verifyAdmin, async (req, res) => {
   // Validate register data
   const { error } = registerValidation(req.body);
   if (error) return res.status(400).send(error.details[0].message);
@@ -94,7 +95,7 @@ router.post("/login", async (req, res) => {
 });
 
 // UPDATE ADMIN - if logged in
-router.patch("/:adminId", verifyToken, async (req, res) => {
+router.patch("/:adminId", verifyToken, verifyAdmin, async (req, res) => {
   // Validate register data
   const { error } = updateAdminValidation(req.body);
   if (error) return res.status(400).send(error.details[0].message);
@@ -126,7 +127,7 @@ router.patch("/:adminId", verifyToken, async (req, res) => {
 });
 
 // Delete admin - if logged in
-router.delete("/:adminId", verifyToken, async (req, res) => {
+router.delete("/:adminId", verifyToken, verifyAdmin, async (req, res) => {
   try {
     const removedAdmin = await Admin.remove({ _id: req.params.adminId });
     res.json(removedAdmin);

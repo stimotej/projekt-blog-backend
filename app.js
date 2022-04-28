@@ -5,7 +5,7 @@ var cors = require("cors");
 require("dotenv").config();
 
 const app = express();
-const port = 5000;
+const port = process.env.PORT || 5000;
 
 // Gzip compression
 app.use(compression());
@@ -26,15 +26,20 @@ app.use("/api/posts", postsRoute);
 app.use("/api/admin", authRoute);
 
 // Connect to MongoDB
-mongoose.connect(
-  process.env.DB_CONNECTION,
-  { useNewUrlParser: true, useUnifiedTopology: true },
-  () => {
-    console.log("Connected to MonogoDB");
-  }
-);
+mongoose
+  .connect(process.env.DB_CONNECTION, {
+    useNewUrlParser: true,
+    useCreateIndex: true,
+    useUnifiedTopology: true,
+  })
+  .then(() => {
+    console.log("Connected to database ");
+  })
+  .catch((err) => {
+    console.error(`Error connecting to the database. \n${err}`);
+  });
 
 // Listen server on port
 app.listen(port, () => {
-  console.log(`Example app listening at http://localhost:${port}`);
+  console.log(`App running.`);
 });
